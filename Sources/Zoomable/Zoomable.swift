@@ -19,6 +19,11 @@ struct ZoomableModifier: ViewModifier {
                         .onAppear {
                             contentSize = proxy.size
                         }
+                        .onChange(of: proxy.size.height) { _ in
+                            if proxy.size != contentSize {
+                                contentSize = proxy.size
+                            }
+                        }
                 }
             }
             .animatableTransformEffect(transform)
