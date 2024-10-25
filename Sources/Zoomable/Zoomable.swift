@@ -5,6 +5,7 @@ import SwiftUI
 struct ZoomableModifier: ViewModifier {
     let minZoomScale: CGFloat
     let doubleTapZoomScale: CGFloat
+    let resetZoomOnDisappear: Bool
 
     @State private var lastTransform: CGAffineTransform = .identity
     @State private var transform: CGAffineTransform = .identity
@@ -30,6 +31,14 @@ struct ZoomableModifier: ViewModifier {
                 }
             }
             .gesture(doubleTapGesture)
+            .onDisappear {
+                if resetZoomOnDisappear {
+                    withAnimation(.linear(duration: 0.15)) {
+                        transform = .identity
+                        lastTransform = .identity
+                    }
+                }
+            }
     }
 
     @available(iOS, introduced: 16.0, deprecated: 17.0)
@@ -138,11 +147,13 @@ public extension View {
     @ViewBuilder
     func zoomable(
         minZoomScale: CGFloat = 1,
-        doubleTapZoomScale: CGFloat = 3
+        doubleTapZoomScale: CGFloat = 3,
+        resetZoomOnDisappear: Bool = true
     ) -> some View {
         modifier(ZoomableModifier(
             minZoomScale: minZoomScale,
-            doubleTapZoomScale: doubleTapZoomScale
+            doubleTapZoomScale: doubleTapZoomScale,
+            resetZoomOnDisappear: resetZoomOnDisappear
         ))
     }
 
@@ -150,14 +161,16 @@ public extension View {
     func zoomable(
         minZoomScale: CGFloat = 1,
         doubleTapZoomScale: CGFloat = 3,
-        outOfBoundsColor: Color = .clear
+        outOfBoundsColor: Color = .clear,
+        resetZoomOnDisappear: Bool = true
     ) -> some View {
         GeometryReader { proxy in
             ZStack {
                 outOfBoundsColor
                 self.zoomable(
                     minZoomScale: minZoomScale,
-                    doubleTapZoomScale: doubleTapZoomScale
+                    doubleTapZoomScale: doubleTapZoomScale,
+                    resetZoomOnDisappear: resetZoomOnDisappear
                 )
             }
         }
